@@ -6,6 +6,8 @@ import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
+from config import GEMINI_BASE_URL, GEMINI_MODEL
+
 
 class GeminiAPIError(RuntimeError):
     def __init__(self, message: str, status_code: Optional[int] = None, retryable: bool = False):
@@ -30,9 +32,7 @@ def _post_json(url: str, headers: Dict[str, str], payload: Dict[str, Any], timeo
 
 
 def _role_to_gemini(role: str) -> str:
-    if role == "assistant":
-        return "model"
-    return "user"
+    return "model" if role == "assistant" else "user"
 
 
 def generate_reply_with_key(
@@ -46,8 +46,8 @@ def generate_reply_with_key(
     if not api_key:
         raise GeminiAPIError("API key Gemini kosong.", retryable=False)
 
-    model = model or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-    base = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
+    model = model or GEMINI_MODEL or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    base = (GEMINI_BASE_URL or os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")).rstrip("/")
     url = f"{base}/models/{model}:generateContent?key={api_key}"
 
     contents: List[Dict[str, Any]] = []
@@ -71,6 +71,7 @@ def generate_reply_with_key(
             "maxOutputTokens": max_output_tokens,
         },
     }
+
     data = _post_json(
         url,
         {
@@ -78,14 +79,17 @@ def generate_reply_with_key(
         },
         payload,
     )
+
     candidates = data.get("candidates") or []
     if not candidates:
         raise GeminiAPIError("Respons Gemini kosong.", retryable=True)
-    cand0 = candidates[0]
-    content = cand0.get("content") or {}
+
+    candidate = candidates[0]
+    content = candidate.get("content") or {}
     parts = content.get("parts") or []
     texts = [part.get("text", "") for part in parts if isinstance(part, dict)]
     reply = "\n".join(t for t in texts if t).strip()
     if not reply:
         raise GeminiAPIError("Konten Gemini kosong.", retryable=True)
+
     return reply
