@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import Dict, List, Optional
 
 from config import GEMINI_API_KEYS
@@ -23,6 +24,7 @@ class GeminiPool:
         self.keys: List[str] = self._load_keys()
         self.states: Dict[int, _KeyState] = {i: _KeyState() for i in range(len(self.keys))}
         self.cursor: int = 0
+        self._lock = Lock()
 
     def _load_keys(self) -> List[str]:
         keys = [k.strip() for k in GEMINI_API_KEYS if k and k.strip()]
@@ -32,10 +34,12 @@ class GeminiPool:
         return datetime.now(timezone.utc)
 
     def _ordered_indices(self) -> List[int]:
+        with self._lock:
+            start = self.cursor
         n = len(self.keys)
         if n == 0:
             return []
-        return list(range(self.cursor, n)) + list(range(0, self.cursor))
+        return list(range(start, n)) + list(range(0, start))
 
     def _is_available(self, idx: int) -> bool:
         state = self.states[idx]
@@ -52,7 +56,8 @@ class GeminiPool:
         state = self.states[idx]
         state.cooldown_until = None
         state.failure_count = 0
-        self.cursor = (idx + 1) % len(self.keys) if self.keys else 0
+        with self._lock:
+            self.cursor = (idx + 1) % len(self.keys) if self.keys else 0
 
     def generate_reply(
         self,
