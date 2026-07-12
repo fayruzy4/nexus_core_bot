@@ -6,6 +6,8 @@ import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
+from config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
+
 
 class GroqAPIError(RuntimeError):
     def __init__(self, message: str, status_code: Optional[int] = None, retryable: bool = False):
@@ -36,18 +38,21 @@ def generate_reply(
     temperature: float = 0.7,
     max_tokens: int = 1024,
 ) -> str:
-    api_key = api_key or os.getenv("GROQ_API_KEY", "")
+    api_key = api_key or GROQ_API_KEY or os.getenv("GROQ_API_KEY", "")
     if not api_key:
-        raise GroqAPIError("GROQ_API_KEY belum diset.", retryable=False)
+        raise GroqAPIError("GROQ_API_KEY belum diisi.", retryable=False)
 
-    model = model or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-    url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
+    model = model or GROQ_MODEL or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    base_url = (GROQ_BASE_URL or os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")).rstrip("/")
+    url = f"{base_url}/chat/completions"
+
     payload = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+
     data = _post_json(
         url,
         {
@@ -56,11 +61,14 @@ def generate_reply(
         },
         payload,
     )
+
     choices = data.get("choices") or []
     if not choices:
         raise GroqAPIError("Respons Groq kosong.", retryable=True)
+
     message = choices[0].get("message") or {}
     content = message.get("content") or ""
     if not content:
         raise GroqAPIError("Konten Groq kosong.", retryable=True)
+
     return str(content).strip()
