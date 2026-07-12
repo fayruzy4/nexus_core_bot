@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
+from config import GEMINI_API_KEYS
 from features.ai.gemini_provider import GeminiAPIError, generate_reply_with_key
 
 
@@ -25,35 +25,17 @@ class GeminiPool:
         self.cursor: int = 0
 
     def _load_keys(self) -> List[str]:
-        keys: List[str] = []
-        raw = os.getenv("GEMINI_API_KEYS", "").strip()
-        if raw:
-            keys.extend([k.strip() for k in raw.split(",") if k.strip()])
-
-        for idx in range(1, 9):
-            val = os.getenv(f"GEMINI_API_KEY_{idx}", "").strip()
-            if val:
-                keys.append(val)
-
-        fallback = os.getenv("GEMINI_API_KEY", "").strip()
-        if fallback and fallback not in keys:
-            keys.append(fallback)
-
-        uniq: List[str] = []
-        for key in keys:
-            if key and key not in uniq:
-                uniq.append(key)
-        return uniq[:4]
+        keys = [k.strip() for k in GEMINI_API_KEYS if k and k.strip()]
+        return keys[:4]
 
     def _now(self) -> datetime:
         return datetime.now(timezone.utc)
 
-    def _pick_indices(self) -> List[int]:
+    def _ordered_indices(self) -> List[int]:
         n = len(self.keys)
         if n == 0:
             return []
-        order = list(range(self.cursor, n)) + list(range(0, self.cursor))
-        return order
+        return list(range(self.cursor, n)) + list(range(0, self.cursor))
 
     def _is_available(self, idx: int) -> bool:
         state = self.states[idx]
@@ -84,7 +66,8 @@ class GeminiPool:
             raise GeminiPoolExhausted("Tidak ada API key Gemini yang tersedia.")
 
         last_error: Optional[Exception] = None
-        for idx in self._pick_indices():
+
+        for idx in self._ordered_indices():
             if not self._is_available(idx):
                 continue
             try:
@@ -101,7 +84,8 @@ class GeminiPool:
             except GeminiAPIError as e:
                 last_error = e
                 if e.retryable:
-                    self._cooldown(idx, retry_after_seconds=300 if e.status_code in {429, 403} else 120)
+                    cooldown = 300 if e.status_code in {429, 403} else 120
+                    self._cooldown(idx, retry_after_seconds=cooldown)
                     continue
                 raise
 
@@ -109,6 +93,7 @@ class GeminiPool:
             raise GeminiPoolExhausted(
                 "Gemini sedang mencapai batas penggunaan.\nSilakan gunakan Groq atau coba lagi nanti."
             )
+
         raise GeminiPoolExhausted(
             "Gemini sedang mencapai batas penggunaan.\nSilakan gunakan Groq atau coba lagi nanti."
         )
