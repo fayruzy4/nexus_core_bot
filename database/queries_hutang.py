@@ -6,6 +6,9 @@ from typing import Any, Dict, List, Optional
 
 from database.supabase import get_supabase
 
+STATUS_BELUM = "BELUM"
+STATUS_LUNAS = "LUNAS"
+
 
 def _db():
     return get_supabase()
