@@ -1,6 +1,6 @@
 from telegram import ReplyKeyboardMarkup
 from config import (
-    MAIN_MENU, BTN_KEUANGAN, BTN_CATAT, BTN_HUTANG, BTN_TARGET, BTN_ADD, BTN_HISTORY, BTN_REPORT, BTN_SETTINGS, BTN_BACK,
+    MAIN_MENU, BTN_KEUANGAN, BTN_CATAT, BTN_HUTANG, BTN_TARGET, BTN_AI, BTN_ADD, BTN_HISTORY, BTN_REPORT, BTN_SETTINGS, BTN_BACK,
     BTN_INCOME, BTN_EXPENSE, BTN_SKIP_NOTE, BTN_TODAY, BTN_CUSTOM_DATE,
     BTN_SAVE, BTN_EDIT, BTN_CANCEL,
     BTN_PERIOD_TODAY, BTN_PERIOD_WEEK, BTN_PERIOD_MONTH, BTN_PERIOD_ALL, BTN_PERIOD_SEARCH,
@@ -13,7 +13,10 @@ def kb(rows):
     return ReplyKeyboardMarkup(rows, resize_keyboard=True, one_time_keyboard=False)
 
 def main_menu():
-    return kb([[BTN_KEUANGAN]])
+    return kb([
+        [BTN_KEUANGAN],
+        [BTN_AI],
+    ])
 
 def keuangan_gate():
     return kb([
