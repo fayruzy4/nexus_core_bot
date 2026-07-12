@@ -18,7 +18,6 @@ from config import (
 from features.ai.conversation_manager import (
     activate_provider,
     append_assistant_message,
-    append_system_message,
     append_user_message,
     current_provider,
     deactivate_provider,
@@ -31,16 +30,21 @@ from features.ai.keyboard_ai import ai_active_keyboard, ai_main_keyboard, ai_res
 from features.ai.memory_manager import build_context_messages, should_summarize
 from features.ai.prompt_manager import get_system_prompt
 from features.ai.provider_manager import ProviderManagerError, generate_reply
-from features.ai.utils_ai import chunk_text, normalize_text, render_active_notice, render_ai_dashboard, render_reset_warning
+from features.ai.utils_ai import chunk_text, normalize_text, render_active_notice, render_ai_dashboard, render_reset_warning, summarize_old_messages
 
 
 def _state(context: ContextTypes.DEFAULT_TYPE) -> Dict[str, Any]:
     if "ai_state" not in context.user_data:
-        context.user_data["ai_state"] = {"awaiting_reset_confirm": False}
+        context.user_data["ai_state"] = {
+            "menu_open": False,
+            "awaiting_reset_confirm": False,
+        }
     return context.user_data["ai_state"]
 
 
 async def _show_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
+    st = _state(context)
+    st["menu_open"] = True
     session, _, _ = get_history(user_id, limit=20)
     provider = session.get("active_provider")
     active = bool(session.get("is_active") and provider)
@@ -51,10 +55,10 @@ async def _show_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE, us
 
 
 async def _activate(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int, provider: str) -> None:
+    st = _state(context)
+    st["menu_open"] = True
+    st["awaiting_reset_confirm"] = False
     activate_provider(user_id, provider)
-    _, history, _ = get_history(user_id, limit=5)
-    if not history:
-        append_system_message(user_id, get_system_prompt())
     await update.message.reply_text(
         render_active_notice(provider),
         reply_markup=ai_active_keyboard(),
@@ -62,8 +66,10 @@ async def _activate(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id:
 
 
 async def _exit_ai(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
+    st = _state(context)
+    st["menu_open"] = False
+    st["awaiting_reset_confirm"] = False
     deactivate_provider(user_id)
-    _state(context)["awaiting_reset_confirm"] = False
     await update.message.reply_text(
         "Mode AI dimatikan.",
         reply_markup=ai_main_keyboard(),
@@ -71,9 +77,11 @@ async def _exit_ai(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: 
 
 
 async def _reset_ai(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
-    reset_user_ai(user_id)
+    st = _state(context)
+    st["menu_open"] = False
+    st["awaiting_reset_confirm"] = False
     deactivate_provider(user_id)
-    _state(context)["awaiting_reset_confirm"] = False
+    reset_user_ai(user_id)
     await update.message.reply_text(
         "Seluruh percakapan dan memory AI sudah dihapus.",
         reply_markup=ai_main_keyboard(),
@@ -102,7 +110,13 @@ async def _chat(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int
     )
 
     try:
-        reply = await generate_reply(provider=provider, messages=payload, system_prompt=system_prompt)
+        reply = await generate_reply(
+            provider=provider,
+            messages=payload,
+            system_prompt=system_prompt,
+            temperature=0.7,
+            max_output_tokens=1024,
+        )
     except ProviderManagerError as e:
         await update.message.reply_text(str(e), reply_markup=ai_active_keyboard())
         return
@@ -110,14 +124,10 @@ async def _chat(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int
     append_assistant_message(user_id, reply, provider)
 
     if should_summarize(history_no_system):
-        compact = []
-        for msg in history_no_system[:-12]:
-            role = msg.get("role", "user")
-            content = normalize_text(msg.get("content", ""))
-            if content:
-                compact.append(f"{role}: {content[:160]}")
+        old_messages = history_no_system[:-12] if len(history_no_system) > 12 else []
+        compact = summarize_old_messages(old_messages, max_turns=min(len(old_messages), 8))
         if compact:
-            store_summary(user_id, "\n".join(compact))
+            store_summary(user_id, compact)
 
     for part in chunk_text(reply):
         await update.message.reply_text(part, reply_markup=ai_active_keyboard())
@@ -153,8 +163,14 @@ async def handle_ai_text(
                 reply_markup=ai_active_keyboard() if active else ai_main_keyboard(),
             )
             return True
+        await update.message.reply_text(
+            render_reset_warning(),
+            reply_markup=ai_reset_confirm_keyboard(),
+        )
+        return True
 
     if text == BTN_AI_RESET:
+        st["menu_open"] = True
         st["awaiting_reset_confirm"] = True
         await update.message.reply_text(
             render_reset_warning(),
@@ -175,11 +191,20 @@ async def handle_ai_text(
         return True
 
     if text == BTN_BACK:
-        await _show_dashboard(update, context, user_id)
-        return True
+        if active or st.get("menu_open"):
+            await _show_dashboard(update, context, user_id)
+            return True
+        return False
 
     if active and provider:
         await _chat(update, context, user_id, text)
+        return True
+
+    if st.get("menu_open"):
+        await update.message.reply_text(
+            "Pilih Groq atau Gemini dulu.",
+            reply_markup=ai_main_keyboard(),
+        )
         return True
 
     return False
