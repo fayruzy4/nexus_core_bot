@@ -126,6 +126,28 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     if text == BTN_BACK:
         reset_state(user.id)
         await update.message.reply_text("Kembali ke menu utama.", reply_markup=main_menu())
+    if text == BTN_ADD:
+        s["flow"] = "add"
+        s["step"] = "type"
+        await update.message.reply_text("Mau nyatet apa nih?", reply_markup=add_type())
+        return
+
+    if text == BTN_HISTORY:
+        s["flow"] = "history"
+        s["step"] = "period"
+        await update.message.reply_text("Mau lihat periode yang mana?", reply_markup=history_period_keyboard())
+        return
+
+    if text == BTN_REPORT:
+        s["flow"] = "report"
+        s["step"] = "period"
+        await update.message.reply_text("Pilih periode analisis.", reply_markup=report_period_keyboard())
+        return
+
+    if text == BTN_SETTINGS:
+        s["flow"] = "settings"
+        s["step"] = None
+        await update.message.reply_text("Pengaturan data transaksi.", reply_markup=settings_keyboard())
         return
 
     await update.message.reply_text("Pilih tombol yang tersedia.", reply_markup=main_menu())
