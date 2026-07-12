@@ -82,9 +82,7 @@ def set_session_provider(user_id: int, provider: Optional[str], is_active: bool)
     }
     resp = db.table("ai_sessions").upsert(payload).execute()
     row = _one(resp)
-    if row:
-        return row
-    return get_or_create_session(user_id)
+    return row or get_or_create_session(user_id)
 
 
 def deactivate_session(user_id: int) -> Dict[str, Any]:
