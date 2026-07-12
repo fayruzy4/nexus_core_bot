@@ -12,6 +12,7 @@ MAIN_MENU = "🏠 Menu Utama"
 BTN_KEUANGAN = "💰 Keuangan"
 BTN_CATAT = "📝 Catat Keuangan"
 BTN_HUTANG = "💳 Catat Hutang"
+BTN_TARGET = "🎯 Target"
 
 BTN_DEBT_PERSON = "👤 Hutang Perorangan"
 BTN_DEBT_COMPANY = "🏦 Hutang Lembaga / Pinjol"
