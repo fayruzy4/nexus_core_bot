@@ -2,14 +2,7 @@ from __future__ import annotations
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 
-BTN_AI = "🤖 Ngobrol dengan AI"
-BTN_AI_GROQ = "🟢 Groq"
-BTN_AI_GEMINI = "🔵 Gemini"
-BTN_AI_RESET = "🗑 Reset Mode"
-BTN_AI_EXIT = "❌ Keluar AI"
-BTN_AI_YES_RESET = "✅ Ya, Reset"
-BTN_AI_NO_RESET = "❌ Batal"
-BTN_BACK = "⬅️ Kembali"
+from config import BTN_BACK, BTN_AI, BTN_AI_GROQ, BTN_AI_GEMINI, BTN_AI_RESET, BTN_AI_EXIT, BTN_AI_YES_RESET, BTN_AI_NO_RESET
 
 
 def _kb(rows):
