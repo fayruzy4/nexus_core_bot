@@ -16,7 +16,14 @@ def _one(resp):
 
 def seed_default_categories() -> None:
     db = _db()
-    existing = db.table("categories").select("id").eq("user_id", "is.null").limit(1).execute().data
+    existing = (
+    db.table("categories")
+    .select("id")
+    .is_("user_id", None)
+    .limit(1)
+    .execute()
+    .data
+    )
     if existing:
         return
 
