@@ -109,7 +109,7 @@ def create_target(
 
     rows = response.data or []
     if rows:
-    return rows[0]
+        return rows[0]
 
 # Fallback jika Supabase memakai return=minimal
     rows = (
