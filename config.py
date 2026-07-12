@@ -12,10 +12,11 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
 GEMINI_API_KEYS = [
-    k.strip()
-    for k in os.getenv("GEMINI_API_KEYS", "").split(",")
-    if k.strip()
+    key.strip()
+    for key in os.getenv("GEMINI_API_KEYS", "").split(",")
+    if key.strip()
 ]
 
 MAIN_MENU = "🏠 Menu Utama"
