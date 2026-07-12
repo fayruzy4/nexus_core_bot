@@ -6,6 +6,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 
 MAIN_MENU = "🏠 Menu Utama"
 BTN_KEUANGAN = "💰 Keuangan"
