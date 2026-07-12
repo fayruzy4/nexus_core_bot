@@ -60,3 +60,10 @@ def build_context_messages(
         prepared = keep
 
     return prepared
+
+
+def should_summarize(messages: List[Dict[str, Any]], trigger_messages: int = 30, trigger_chars: int = 12000) -> bool:
+    if len(messages) >= trigger_messages:
+        return True
+    total_chars = sum(len(str(msg.get("content", ""))) for msg in messages)
+    return total_chars >= trigger_chars
