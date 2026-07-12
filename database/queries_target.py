@@ -88,27 +88,42 @@ def create_target(
         }
     )
 
-    res = (
-        db.table("targets")
-        .insert(
-            {
-                "user_id": payload["user_id"],
-                "nama_target": payload["nama_target"],
-                "nominal_target": payload["nominal_target"],
-                "nominal_awal": payload["nominal_awal"],
-                "dana_terkumpul": payload["dana_terkumpul"],
-                "catatan": payload["catatan"],
-                "status": payload["status"],
-                "created_at": payload["created_at"],
-                "completed_at": payload["completed_at"],
-                "updated_at": payload["updated_at"],
-            }
-        )
-        .execute()
-        .data
+    response = (
+    db.table("targets")
+    .insert(
+        {
+            "user_id": payload["user_id"],
+            "nama_target": payload["nama_target"],
+            "nominal_target": payload["nominal_target"],
+            "nominal_awal": payload["nominal_awal"],
+            "dana_terkumpul": payload["dana_terkumpul"],
+            "catatan": payload["catatan"],
+            "status": payload["status"],
+            "created_at": payload["created_at"],
+            "completed_at": payload["completed_at"],
+            "updated_at": payload["updated_at"],
+        }
+    )
+    .execute()
     )
 
-    rows = res or []
+    rows = response.data or []
+    if rows:
+    return rows[0]
+
+# Fallback jika Supabase memakai return=minimal
+    rows = (
+    db.table("targets")
+    .select("*")
+    .eq("user_id", user_id)
+    .eq("nama_target", payload["nama_target"])
+    .eq("nominal_target", payload["nominal_target"])
+    .order("id", desc=True)
+    .limit(1)
+    .execute()
+    .data
+    )
+
     return rows[0] if rows else {}
 
 
