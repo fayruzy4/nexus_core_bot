@@ -14,6 +14,14 @@ BTN_CATAT = "📝 Catat Keuangan"
 BTN_HUTANG = "💳 Catat Hutang"
 BTN_TARGET = "🎯 Target"
 
+BTN_AI = "🤖 Ngobrol dengan AI"
+BTN_AI_GROQ = "🟢 Groq"
+BTN_AI_GEMINI = "🔵 Gemini"
+BTN_AI_RESET = "🗑 Reset Mode"
+BTN_AI_EXIT = "❌ Keluar AI"
+BTN_AI_YES_RESET = "✅ Ya, Reset"
+BTN_AI_NO_RESET = "❌ Batal"
+
 BTN_DEBT_PERSON = "👤 Hutang Perorangan"
 BTN_DEBT_COMPANY = "🏦 Hutang Lembaga / Pinjol"
 
