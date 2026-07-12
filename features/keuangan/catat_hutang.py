@@ -200,7 +200,7 @@ async def send_root_dashboard(update: Update) -> None:
 
 
 async def send_person_dashboard(update: Update) -> None:
-    summary = get_person_summary(update.effective_user.id)
+    summary = get_person_summary(db_user["id"])
     text = (
         "👤 Hutang Perorangan\n\n"
         f"Total Data: {summary['count']}\n"
@@ -212,7 +212,7 @@ async def send_person_dashboard(update: Update) -> None:
 
 
 async def send_company_dashboard(update: Update) -> None:
-    summary = get_company_summary(update.effective_user.id)
+    summary = get_company_summary(db_user["id"])
     text = (
         "🏦 Hutang Lembaga / Pinjol\n\n"
         f"Total Pinjaman: {summary['count']}\n"
@@ -317,7 +317,7 @@ async def handle_hutang_text(update: Update, context: ContextTypes.DEFAULT_TYPE,
 
 
 async def _handle_root_flow(update: Update, text: str) -> bool:
-    telegram_id = update.effective_user.id
+    user_id = db_user["id"]
     s = state(telegram_id)
 
     if text == BTN_DEBT_PERSON:
@@ -346,7 +346,7 @@ async def _handle_root_flow(update: Update, text: str) -> bool:
 
 
 async def _handle_person_flow(update: Update, text: str) -> bool:
-    telegram_id = update.effective_user.id
+    user_id = db_user["id"]
     s = state(telegram_id)
 
     if text == BTN_BACK and s["step"] in {None, "pick_person"}:
@@ -429,7 +429,7 @@ async def _handle_person_flow(update: Update, text: str) -> bool:
         if text == BTN_SAVE:
             payload = s["payload"]
             create_person_loan(
-                telegram_id,
+                user_id,
                 payload["nama"],
                 int(payload["nominal"]),
                 payload.get("catatan") or None,
@@ -542,7 +542,7 @@ async def _show_company_confirm(update: Update, s: Dict[str, Any]) -> None:
 
 
 async def _handle_company_flow(update: Update, text: str) -> bool:
-    telegram_id = update.effective_user.id
+    user_id = db_user["id"]
     s = state(telegram_id)
 
     if text == BTN_BACK and s["step"] in {None, "pick_company"}:
@@ -649,7 +649,7 @@ async def _handle_company_flow(update: Update, text: str) -> bool:
         if text == BTN_SAVE:
             payload = s["payload"]
             create_company_loan(
-                telegram_id,
+                user_id,
                 payload["nama_lembaga"],
                 int(payload["nominal_awal"]),
                 float(payload["bunga"]),
