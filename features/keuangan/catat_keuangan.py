@@ -33,6 +33,7 @@ from features.keuangan.utils import (
 )
 from features.keuangan.charts import create_pie_chart, create_line_chart, create_bar_chart, create_area_chart
 from features.keuangan.catat_hutang import handle_hutang_text, reset_state as reset_hutang_state
+from features.keuangan.target import handle_target_text
 
 def register(application: Application) -> None:
     seed_default_categories()
@@ -72,6 +73,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     db_user = get_or_create_user(user.id, user.username, user.full_name)
     s = state(user.id)
     text = (update.message.text or "").strip()
+   
+    if await handle_target_text(update, context, db_user, text):
+        return
 
     if text == MAIN_MENU:
         reset_state(user.id)
