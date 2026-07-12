@@ -52,7 +52,7 @@ async def _show_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE, us
 
 async def _activate(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int, provider: str) -> None:
     activate_provider(user_id, provider)
-    session, history, _ = get_history(user_id, limit=5)
+    _, history, _ = get_history(user_id, limit=5)
     if not history:
         append_system_message(user_id, get_system_prompt())
     await update.message.reply_text(
