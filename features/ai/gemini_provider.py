@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
-from typing import Dict, List, Optional
-
-from google import genai
+import urllib.error
+import urllib.request
+from typing import Any, Dict, List, Optional
 
 from config import GEMINI_MODEL
 
@@ -13,6 +14,21 @@ class GeminiAPIError(RuntimeError):
         super().__init__(message)
         self.status_code = status_code
         self.retryable = retryable
+
+
+def _post_json(url: str, headers: Dict[str, str], payload: Dict[str, Any], timeout: int = 60) -> Dict[str, Any]:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw)
+    except urllib.error.HTTPError as e:
+        raw = e.read().decode("utf-8", errors="ignore")
+        retryable = e.code in {429, 500, 502, 503, 504}
+        raise GeminiAPIError(raw or str(e), status_code=e.code, retryable=retryable)
+    except urllib.error.URLError as e:
+        raise GeminiAPIError(str(e), retryable=True)
 
 
 def generate_reply_with_key(
@@ -27,33 +43,48 @@ def generate_reply_with_key(
         raise GeminiAPIError("API key Gemini kosong.", retryable=False)
 
     model = model or GEMINI_MODEL or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-    client = genai.Client(api_key=api_key)
+    base_url = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
+    url = f"{base_url}/models/{model}:generateContent?key={api_key}"
 
-    contents = []
+    contents: List[Dict[str, Any]] = []
     for msg in messages:
-        role = msg.get("role", "user")
+        role = (msg.get("role") or "user").strip()
         content = (msg.get("content") or "").strip()
         if not content:
             continue
-        if role == "assistant":
-            contents.append({"role": "model", "parts": [{"text": content}]})
-        else:
-            contents.append({"role": "user", "parts": [{"text": content}]})
-
-    try:
-        response = client.models.generate_content(
-            model=model,
-            contents=contents,
-            config={
-                "system_instruction": system_prompt,
-                "temperature": temperature,
-                "max_output_tokens": max_output_tokens,
-            },
+        contents.append(
+            {
+                "role": "model" if role == "assistant" else "user",
+                "parts": [{"text": content}],
+            }
         )
-    except Exception as e:
-        raise GeminiAPIError(str(e), retryable=True)
 
-    text = getattr(response, "text", None)
-    if not text:
+    payload = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {
+            "temperature": temperature,
+            "maxOutputTokens": max_output_tokens,
+        },
+    }
+
+    data = _post_json(
+        url,
+        {"Content-Type": "application/json"},
+        payload,
+    )
+
+    candidates = data.get("candidates") or []
+    if not candidates:
+        raise GeminiAPIError("Respons Gemini kosong.", retryable=True)
+
+    candidate = candidates[0]
+    content = candidate.get("content") or {}
+    parts = content.get("parts") or []
+    texts = [part.get("text", "") for part in parts if isinstance(part, dict)]
+    reply = "\n".join(t for t in texts if t).strip()
+
+    if not reply:
         raise GeminiAPIError("Konten Gemini kosong.", retryable=True)
-    return str(text).strip()
+
+    return reply
