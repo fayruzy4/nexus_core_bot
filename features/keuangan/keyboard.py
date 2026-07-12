@@ -16,8 +16,11 @@ def main_menu():
     return kb([[BTN_KEUANGAN]])
 
 def keuangan_gate():
-    return kb([[BTN_CATAT, BTN_HUTANG], [BTN_BACK]])
-
+    return kb([
+        [BTN_CATAT, BTN_TARGET],
+        [BTN_HUTANG],
+        [BTN_BACK],
+    ])
 def catat_dashboard():
     return kb([
         [BTN_ADD],
