@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 
-from config import BTN_BACK, BTN_AI, BTN_AI_GROQ, BTN_AI_GEMINI, BTN_AI_RESET, BTN_AI_EXIT, BTN_AI_YES_RESET, BTN_AI_NO_RESET
+from config import BTN_BACK, BTN_AI_GROQ, BTN_AI_GEMINI, BTN_AI_RESET, BTN_AI_EXIT, BTN_AI_YES_RESET, BTN_AI_NO_RESET
 
 
 def _kb(rows):
