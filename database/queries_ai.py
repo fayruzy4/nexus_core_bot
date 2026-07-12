@@ -71,20 +71,37 @@ def get_or_create_session(user_id: int) -> Dict[str, Any]:
         return session
     return create_session(user_id)
 
-
-def set_session_provider(user_id: int, provider: Optional[str], is_active: bool) -> Dict[str, Any]:
+def set_session_provider(user_id: int, provider: str | None, is_active: bool):
     db = _db()
+
+    existing = get_session_by_user_id(user_id)
+
     payload = {
-        "user_id": user_id,
         "active_provider": provider,
         "is_active": bool(is_active),
         "updated_at": _now(),
     }
-    resp = db.table("ai_sessions").upsert(payload).execute()
+
+    if existing:
+        resp = (
+            db.table("ai_sessions")
+            .update(payload)
+            .eq("user_id", user_id)
+            .execute()
+        )
+    else:
+        payload["user_id"] = user_id
+        payload["created_at"] = _now()
+
+        resp = (
+            db.table("ai_sessions")
+            .insert(payload)
+            .execute()
+        )
+
     row = _one(resp)
-    return row or get_or_create_session(user_id)
 
-
+    return row or get_session_by_user_id(user_id)
 def deactivate_session(user_id: int) -> Dict[str, Any]:
     return set_session_provider(user_id, None, False)
 
