@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 def normalize_text(text: str) -> str:
@@ -15,29 +16,14 @@ def chunk_text(text: str, max_chars: int = 3500) -> List[str]:
     text = normalize_text(text)
     if not text:
         return [""]
-    chunks: List[str] = []
-    start = 0
-    while start < len(text):
-        chunks.append(text[start:start + max_chars])
-        start += max_chars
-    return chunks
+    return [text[i : i + max_chars] for i in range(0, len(text), max_chars)]
 
 
 def role_to_openai(role: str) -> str:
-    if role in {"system", "assistant", "user"}:
-        return role
-    return "user"
+    return role if role in {"system", "assistant", "user"} else "user"
 
 
-def role_to_gemini(role: str) -> str:
-    if role == "assistant":
-        return "model"
-    if role == "user":
-        return "user"
-    return "user"
-
-
-def provider_label(provider: str | None) -> str:
+def provider_label(provider: Optional[str]) -> str:
     if provider == "groq":
         return "Groq"
     if provider == "gemini":
@@ -45,7 +31,7 @@ def provider_label(provider: str | None) -> str:
     return "-"
 
 
-def render_ai_dashboard(active_provider: str | None, is_active: bool) -> str:
+def render_ai_dashboard(active_provider: Optional[str], is_active: bool) -> str:
     status = "AKTIF" if is_active and active_provider else "NONAKTIF"
     provider = provider_label(active_provider)
     return (
