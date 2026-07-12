@@ -5,7 +5,7 @@ from features.keuangan.catat_keuangan import register
 
 def main():
     if not BOT_TOKEN:
-        raise RuntimeError("TELEGRAM_BOT_TOKEN belum diisi.")
+    raise RuntimeError("TELEGRAM_BOT_TOKEN belum diisi.")
     app = Application.builder().token(BOT_TOKEN).build()
 from telegram.ext import MessageHandler, filters, ApplicationHandlerStop
 from config import OWNER_ID
