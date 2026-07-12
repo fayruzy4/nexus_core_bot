@@ -10,20 +10,12 @@ OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
 GEMINI_API_KEYS = [
-    key.strip()
-    for key in (
-        os.getenv("GEMINI_API_KEYS", ""),
-        os.getenv("GEMINI_API_KEY_1", ""),
-        os.getenv("GEMINI_API_KEY_2", ""),
-        os.getenv("GEMINI_API_KEY_3", ""),
-        os.getenv("GEMINI_API_KEY_4", ""),
-    )
-    if key and key.strip()
+    k.strip()
+    for k in os.getenv("GEMINI_API_KEYS", "").split(",")
+    if k.strip()
 ]
 
 MAIN_MENU = "🏠 Menu Utama"
