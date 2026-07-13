@@ -71,6 +71,7 @@ def get_or_create_session(user_id: int) -> Dict[str, Any]:
         return session
     return create_session(user_id)
 
+
 def set_session_provider(user_id: int, provider: str | None, is_active: bool):
     db = _db()
 
@@ -100,8 +101,9 @@ def set_session_provider(user_id: int, provider: str | None, is_active: bool):
         )
 
     row = _one(resp)
-
     return row or get_session_by_user_id(user_id)
+
+
 def deactivate_session(user_id: int) -> Dict[str, Any]:
     return set_session_provider(user_id, None, False)
 
@@ -220,9 +222,53 @@ def upsert_provider_state(
         "last_error_message": last_error_message,
         "updated_at": _now(),
     }
-    resp = db.table("ai_provider_state").upsert(payload).execute()
-    return _one(resp)
+
+    existing = get_provider_state(provider_name)
+    if existing:
+        resp = (
+            db.table("ai_provider_state")
+            .update(payload)
+            .eq("provider_name", provider_name)
+            .execute()
+        )
+    else:
+        resp = (
+            db.table("ai_provider_state")
+            .insert(payload)
+            .execute()
+        )
+
+    row = _one(resp)
+    return row or get_provider_state(provider_name)
 
 
 def reset_provider_state(provider_name: str) -> Optional[Dict[str, Any]]:
-    return upsert_provider_state(provider_name=provider_name, api_index=0, cooldown_until=None, failure_count=0)
+    db = _db()
+    payload = {
+        "provider_name": provider_name,
+        "api_index": 0,
+        "cooldown_until": None,
+        "failure_count": 0,
+        "last_used_at": None,
+        "last_error_at": None,
+        "last_error_message": None,
+        "updated_at": _now(),
+    }
+
+    existing = get_provider_state(provider_name)
+    if existing:
+        resp = (
+            db.table("ai_provider_state")
+            .update(payload)
+            .eq("provider_name", provider_name)
+            .execute()
+        )
+    else:
+        resp = (
+            db.table("ai_provider_state")
+            .insert(payload)
+            .execute()
+        )
+
+    row = _one(resp)
+    return row or get_provider_state(provider_name)
