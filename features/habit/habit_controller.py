@@ -593,7 +593,7 @@ async def handle_habit_callback(update: Update, context: ContextTypes.DEFAULT_TY
             return True
 
         await _edit_or_reply(query, "📡 ACCESSING CORE MEMORY...\nSYNCHRONIZING INTEGRITY.", None)
-        await asyncio.sleep(1)
+        
 
         result = toggle_daily_row(user_id, row_id)
         snapshot = get_daily_view_snapshot(user_id, today_local())
