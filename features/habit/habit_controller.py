@@ -277,8 +277,7 @@ async def handle_habit_text(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         return True
     if raw == BTN_BACK:
         _reset_state(context)
-        await _reply_message(update, "Kembali ke menu utama.", reply_markup=habit_main_keyboard())
-        return True
+        return False
 
     if st.get("screen") in {"add", "settings", "cache"}:
         return True
