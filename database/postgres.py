@@ -60,9 +60,9 @@ class PgConfig:
                 password=m.group("pw"),
             )
 
-        host = os.getenv("PG_HOST", "").strip()
+                host = os.getenv("PG_HOST", "").strip()
         port = int(os.getenv("PG_PORT", "6543"))
-                database = os.getenv("PG_DATABASE", "postgres").strip()
+        database = os.getenv("PG_DATABASE", "postgres").strip()
         user = os.getenv("PG_USER", "").strip()
         password = os.getenv("PG_PASSWORD", "").strip()
 
@@ -83,7 +83,7 @@ class PgConfig:
             password=password,
             ssl=ssl_mode,
         )
-        return cls(host=host, port=port, database=database, user=user, password=password, ssl=ssl_mode)
+        
 
 
 class QueryResponse:
