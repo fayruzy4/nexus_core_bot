@@ -214,6 +214,19 @@ def list_habits(user_id: int) -> List[Dict[str, Any]]:
     )
 
 
+def list_active_habits(user_id: int, habit_date: date) -> List[Dict[str, Any]]:
+    ensure_defaults()
+    return _rows(
+        _db()
+        .table("habit_definitions")
+        .select("*")
+        .eq("user_id", user_id)
+        .lte("effective_from_date", habit_date.isoformat())
+        .order("order_index", desc=False)
+        .order("created_at", desc=False)
+        .execute()
+    )
+
 def get_habit_by_id(habit_id: int) -> Optional[Dict[str, Any]]:
     return _select_one("habit_definitions", id=habit_id)
 
