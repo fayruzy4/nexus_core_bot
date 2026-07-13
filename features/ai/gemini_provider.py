@@ -46,12 +46,19 @@ def generate_reply_with_key(
     base_url = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
     url = f"{base_url}/models/{model}:generateContent?key={api_key}"
 
+    system_parts: List[str] = [system_prompt.strip()] if system_prompt and system_prompt.strip() else []
     contents: List[Dict[str, Any]] = []
+
     for msg in messages:
-        role = (msg.get("role") or "user").strip()
+        role = (msg.get("role") or "user").strip().lower()
         content = (msg.get("content") or "").strip()
         if not content:
             continue
+
+        if role == "system":
+            system_parts.append(content)
+            continue
+
         contents.append(
             {
                 "role": "model" if role == "assistant" else "user",
@@ -59,8 +66,10 @@ def generate_reply_with_key(
             }
         )
 
+    system_instruction_text = "\n\n".join(part for part in system_parts if part).strip()
+
     payload = {
-        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "system_instruction": {"parts": [{"text": system_instruction_text}]},
         "contents": contents,
         "generationConfig": {
             "temperature": temperature,
