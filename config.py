@@ -10,6 +10,10 @@ OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_STT_MODEL = os.getenv(
+    "GROQ_STT_MODEL",
+    "whisper-large-v3-turbo",
+)
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
