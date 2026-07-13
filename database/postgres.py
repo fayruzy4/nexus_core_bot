@@ -62,17 +62,27 @@ class PgConfig:
 
         host = os.getenv("PG_HOST", "").strip()
         port = int(os.getenv("PG_PORT", "6543"))
-        database = os.getenv("PG_DATABASE", "postgres").strip()
+                database = os.getenv("PG_DATABASE", "postgres").strip()
         user = os.getenv("PG_USER", "").strip()
         password = os.getenv("PG_PASSWORD", "").strip()
+
         ssl_raw = os.getenv("PG_SSLMODE", "require").strip().lower()
 
         if ssl_raw in {"", "disable", "false", "0", "no"}:
-         ssl_mode = None
+            ssl_mode = None
         else:
-        ssl_mode = ssl.create_default_context()
-        ssl_mode.check_hostname = False
-        ssl_mode.verify_mode = ssl.CERT_NONE
+            ssl_mode = ssl.create_default_context()
+            ssl_mode.check_hostname = False
+            ssl_mode.verify_mode = ssl.CERT_NONE
+
+        return cls(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            ssl=ssl_mode,
+        )
         return cls(host=host, port=port, database=database, user=user, password=password, ssl=ssl_mode)
 
 
