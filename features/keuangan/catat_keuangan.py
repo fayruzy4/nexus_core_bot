@@ -35,8 +35,11 @@ from features.keuangan.catat_hutang import handle_hutang_text, reset_state as re
 from features.ai.chat_ai import handle_ai_text
 from features.ai.voice_handler import handle_ai_voice
 from features.keuangan.target import handle_target_text
+from features.habit.habit import register as register_habit
+from features.habit.habit import handle_habit_text
 def register(application: Application) -> None:
     seed_default_categories()
+    register_habit(application)
     application.add_handler(CommandHandler(["start", "menu"], start))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
@@ -81,7 +84,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     text = (update.message.text or "").strip()
     if await handle_ai_text(update, context, db_user, text):
         return
-    
+    if await handle_habit_text(update, context, db_user, text):
+        return
    
     if await handle_target_text(update, context, db_user, text):
         return
