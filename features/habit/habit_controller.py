@@ -35,7 +35,7 @@ from config import (
 )
 
 from database.queries import get_or_create_user
-from features.habit.habit_queries import (
+from database.queries_habit import (
     apply_xp,
     create_habit,
     delete_habit,
