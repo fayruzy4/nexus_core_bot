@@ -39,7 +39,7 @@ _DEFAULTS_SEEDED = False
 
 
 def _db():
-    return get_supabase()
+    return get_postgres() ini 
 
 
 def _now() -> datetime:
