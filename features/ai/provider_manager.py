@@ -45,6 +45,8 @@ def _generate_sync(
                 messages=messages,
                 system_prompt=system_prompt,
                 model=model,
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
             )
         except GeminiPoolExhausted as e:
             raise ProviderManagerError(str(e))
