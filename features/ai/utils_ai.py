@@ -53,7 +53,7 @@ def render_active_notice(provider: str) -> str:
 
 def render_reset_warning() -> str:
     return (
-        "Reset Mode akan menghapus seluruh percakapan, memory, dan session AI.\n"
+        "Reset Mode akan menghapus seluruh percakapan, memory, session AI, dan state provider.\n"
         "Lanjutkan?"
     )
 
