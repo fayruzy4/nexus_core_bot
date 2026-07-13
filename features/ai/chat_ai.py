@@ -22,6 +22,7 @@ from features.ai.conversation_manager import (
     current_provider,
     deactivate_provider,
     get_history,
+    reset_runtime_state,
     reset_user_ai,
     session_is_active,
     store_summary,
@@ -30,7 +31,15 @@ from features.ai.keyboard_ai import ai_active_keyboard, ai_main_keyboard, ai_res
 from features.ai.memory_manager import build_context_messages, should_summarize
 from features.ai.prompt_manager import get_system_prompt
 from features.ai.provider_manager import ProviderManagerError, generate_reply
-from features.ai.utils_ai import chunk_text, normalize_text, render_active_notice, render_ai_dashboard, render_reset_warning, summarize_old_messages
+from features.ai.tts_provider import cleanup_audio_file, synthesize_speech
+from features.ai.utils_ai import (
+    chunk_text,
+    normalize_text,
+    render_active_notice,
+    render_ai_dashboard,
+    render_reset_warning,
+    summarize_old_messages,
+)
 
 
 def _state(context: ContextTypes.DEFAULT_TYPE) -> Dict[str, Any]:
@@ -81,14 +90,36 @@ async def _reset_ai(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id:
     st["menu_open"] = False
     st["awaiting_reset_confirm"] = False
     deactivate_provider(user_id)
+    reset_runtime_state()
     reset_user_ai(user_id)
     await update.message.reply_text(
-        "Seluruh percakapan dan memory AI sudah dihapus.",
+        "Seluruh percakapan, memory, session, dan state AI sudah dihapus.",
         reply_markup=ai_main_keyboard(),
     )
 
 
-async def _chat(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int, text: str) -> None:
+async def _send_voice_reply(update: Update, text: str) -> None:
+    audio_path = None
+    try:
+        audio_path = await synthesize_speech(text)
+        with audio_path.open("rb") as audio:
+            await update.message.reply_audio(
+                audio=audio,
+                performer="Nexus",
+                title="Nexus",
+            )
+    except Exception:
+        pass
+    finally:
+        cleanup_audio_file(audio_path)
+
+
+async def _send_text_reply(update: Update, text: str) -> None:
+    for part in chunk_text(text):
+        await update.message.reply_text(part, reply_markup=ai_active_keyboard())
+
+
+async def _chat(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int, text: str, reply_voice: bool = False) -> None:
     session, history, summary = get_history(user_id, limit=80)
     provider = session.get("active_provider")
     if not provider:
@@ -129,15 +160,18 @@ async def _chat(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id: int
         if compact:
             store_summary(user_id, compact)
 
-    for part in chunk_text(reply):
-        await update.message.reply_text(part, reply_markup=ai_active_keyboard())
+    await _send_text_reply(update, reply)
+
+    if reply_voice:
+        await _send_voice_reply(update, reply)
 
 
-async def handle_ai_text(
+async def handle_ai_message(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
     db_user: Dict[str, Any],
     text: str,
+    reply_voice: bool = False,
 ) -> bool:
     user_id = int(db_user["id"])
     text = normalize_text(text)
@@ -197,7 +231,7 @@ async def handle_ai_text(
         return False
 
     if active and provider:
-        await _chat(update, context, user_id, text)
+        await _chat(update, context, user_id, text, reply_voice=reply_voice)
         return True
 
     if st.get("menu_open"):
@@ -208,3 +242,12 @@ async def handle_ai_text(
         return True
 
     return False
+
+
+async def handle_ai_text(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    db_user: Dict[str, Any],
+    text: str,
+) -> bool:
+    return await handle_ai_message(update, context, db_user, text, reply_voice=False)
