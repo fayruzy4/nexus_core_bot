@@ -378,10 +378,7 @@ def ensure_daily_snapshot(user_id: int, habit_date: Optional[date] = None) -> Li
     existing_ids = {row.get("habit_id") for row in existing if row.get("habit_id") is not None}
     has_boss = any(bool(row.get("is_boss")) for row in existing)
 
-    habits = [
-        habit for habit in list_habits(user_id)
-        if str(habit.get("effective_from_date") or "") <= habit_date.isoformat()
-    ]
+    habits = list_active_habits(user_id, habit_date)
 
     inserts: List[Dict[str, Any]] = []
     for habit in habits:
