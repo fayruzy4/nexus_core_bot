@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 from config import (
     BTN_HABIT_DIFF_VERY_EASY,
@@ -10,7 +10,7 @@ from config import (
     BTN_HABIT_DIFF_VERY_HARD,
 )
 
-TIER_NAMES = [
+TIER_NAMES: List[str] = [
     "Voyager",
     "Sentinel",
     "Ranger",
@@ -25,7 +25,7 @@ TIER_NAMES = [
     "NEXUS Apex",
 ]
 
-RANK_LABELS = ["VI", "V", "IV", "III", "II", "I"]
+RANK_LABELS: List[str] = ["VI", "V", "IV", "III", "II", "I"]
 
 DIFFICULTY_CHOICES: Dict[str, Dict[str, Any]] = {
     BTN_HABIT_DIFF_VERY_EASY: {"code": "VERY_EASY", "xp": 10, "label": "Sangat Mudah"},
@@ -34,7 +34,7 @@ DIFFICULTY_CHOICES: Dict[str, Dict[str, Any]] = {
     BTN_HABIT_DIFF_VERY_HARD: {"code": "VERY_HARD", "xp": 40, "label": "Sangat Sulit"},
 }
 
-DIFFICULTY_BY_CODE = {v["code"]: v for v in DIFFICULTY_CHOICES.values()}
+DIFFICULTY_BY_CODE = {value["code"]: value for value in DIFFICULTY_CHOICES.values()}
 
 CATEGORY_PRESETS: List[Tuple[str, str]] = [
     ("Health", "🏃"),
@@ -97,12 +97,12 @@ def difficulty_label(code: str) -> str:
 
 
 def tier_name(index: int) -> str:
-    idx = max(1, min(12, int(index))) - 1
+    idx = max(1, min(len(TIER_NAMES), int(index))) - 1
     return TIER_NAMES[idx]
 
 
 def rank_label(step: int) -> str:
-    idx = max(1, min(6, int(step))) - 1
+    idx = max(1, min(len(RANK_LABELS), int(step))) - 1
     return RANK_LABELS[idx]
 
 
@@ -160,10 +160,7 @@ def mission_line(idx: int, row: Dict[str, Any]) -> str:
     xp = int(row.get("xp_value_snapshot") or 0)
     title = row.get("boss_title") if row.get("is_boss") else row.get("habit_title_snapshot")
     category = row.get("category_snapshot") if not row.get("is_boss") else "Boss"
-    return (
-        f"{idx}. {boss}[{mark}] {title}\n"
-        f"   • {category} | +{xp} XP"
-    )
+    return f"{idx}. {boss}[{mark}] {title}\n   • {category} | +{xp} XP"
 
 
 def habit_item_line(idx: int, habit: Dict[str, Any]) -> str:

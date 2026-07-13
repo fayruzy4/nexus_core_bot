@@ -4,7 +4,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,
 
 from config import (
     BTN_BACK,
-    BTN_HABIT,
     BTN_HABIT_DAILY,
     BTN_HABIT_ADD,
     BTN_HABIT_LIST,
@@ -16,7 +15,6 @@ from config import (
     BTN_HABIT_SETTINGS,
     BTN_HABIT_CANCEL,
     BTN_HABIT_SAVE,
-    BTN_HABIT_DELETE,
     BTN_HABIT_SET_CHANNEL,
     BTN_HABIT_SET_BRIEF,
     BTN_HABIT_SET_ALERT,
