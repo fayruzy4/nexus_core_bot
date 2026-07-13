@@ -18,6 +18,13 @@ GEMINI_API_KEYS = [
     for key in os.getenv("GEMINI_API_KEYS", "").split(",")
     if key.strip()
 ]
+AI_MAX_VOICE_DURATION = int(os.getenv("AI_MAX_VOICE_DURATION", "600"))
+
+TTS_VOICE_MALE = os.getenv("TTS_VOICE_MALE", "id-ID-ArdiNeural")
+TTS_VOICE_FEMALE = os.getenv("TTS_VOICE_FEMALE", "id-ID-GadisNeural")
+TTS_VOICE_DEFAULT = os.getenv("TTS_VOICE_DEFAULT", TTS_VOICE_MALE)
+TTS_RATE = os.getenv("TTS_RATE", "0%")
+TTS_VOLUME = os.getenv("TTS_VOLUME", "+0%")
 
 MAIN_MENU = "🏠 Menu Utama"
 BTN_KEUANGAN = "💰 Keuangan"
