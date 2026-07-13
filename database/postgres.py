@@ -60,10 +60,10 @@ class PgConfig:
                 password=m.group("pw"),
             )
 
-                host = os.getenv("PG_HOST", "").strip()
+        host = os.getenv("PG_HOST", "").strip()
         port = int(os.getenv("PG_PORT", "6543"))
         database = os.getenv("PG_DATABASE", "postgres").strip()
-        user = os.getenv("PG_USER", "").strip()
+        ser = os.getenv("PG_USER", "").strip()
         password = os.getenv("PG_PASSWORD", "").strip()
 
         ssl_raw = os.getenv("PG_SSLMODE", "require").strip().lower()
