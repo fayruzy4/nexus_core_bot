@@ -10,8 +10,10 @@ from database.queries_ai import (
     get_or_create_session,
     get_session_by_user_id,
     list_messages,
+    reset_provider_state,
     set_session_provider,
 )
+from features.ai.gemini_pool import reset_pool_state as reset_gemini_pool_state
 
 
 def ensure_session(user_id: int) -> Dict[str, Any]:
@@ -56,6 +58,11 @@ def get_history(user_id: int, limit: int = 40) -> Tuple[Dict[str, Any], List[Dic
 def store_summary(user_id: int, summary_text: str) -> Optional[Dict[str, Any]]:
     session = ensure_session(user_id)
     return add_summary(session["id"], summary_text)
+
+
+def reset_runtime_state() -> None:
+    reset_provider_state("groq")
+    reset_gemini_pool_state()
 
 
 def reset_user_ai(user_id: int) -> None:
