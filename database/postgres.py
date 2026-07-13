@@ -167,7 +167,6 @@ async def _ainit_pool() -> None:
         return
 
     cfg = PgConfig.from_env()
-    print("DEBUG CFG:", cfg)
     if not cfg.host or not cfg.user or not cfg.password:
         raise PostgresError("PG_HOST/PG_USER/PG_PASSWORD belum diisi. Atau set DATABASE_URL.")
 
