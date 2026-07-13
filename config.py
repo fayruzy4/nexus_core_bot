@@ -102,6 +102,42 @@ BTN_EDIT_TYPE = "🔁 Jenis"
 BTN_EDIT_SAVE = "💾 Simpan"
 BTN_EDIT_ABORT = "❌ Batal"
 
+# =========================
+# HABIT MATRIX - UI BUTTONS
+# =========================
+BTN_HABIT = "🛰️ Habit Matrix"
+BTN_HABIT_DAILY = "📅 Daily Mission Matrix"
+BTN_HABIT_ADD = "➕ Tambah Habit"
+BTN_HABIT_LIST = "📜 Daftar Habit"
+BTN_HABIT_PROGRESS = "🎖 Progress Matrix"
+BTN_HABIT_INVENTORY = "🎒 Inventory"
+BTN_HABIT_CACHE = "🎟 Data Cache"
+BTN_HABIT_ACHIEVEMENT = "🏆 Achievement"
+BTN_HABIT_EVALUATION = "📊 Evaluasi"
+BTN_HABIT_SETTINGS = "⚙️ Pengaturan"
+BTN_HABIT_BACK = "⬅️ Kembali"
+BTN_HABIT_SAVE = "✅ Simpan"
+BTN_HABIT_CANCEL = "❌ Batal"
+BTN_HABIT_DELETE = "🗑 Hapus"
+BTN_HABIT_SET_CHANNEL = "📢 Set Channel"
+BTN_HABIT_SET_BRIEF = "🕖 Set Briefing"
+BTN_HABIT_SET_ALERT = "🌙 Set Alert"
+BTN_HABIT_CATEGORY_CUSTOM = "✍️ Custom"
+
+BTN_HABIT_DIFF_VERY_EASY = "🟢 Sangat Mudah"
+BTN_HABIT_DIFF_EASY = "🟡 Mudah"
+BTN_HABIT_DIFF_HARD = "🟠 Sulit"
+BTN_HABIT_DIFF_VERY_HARD = "🔴 Sangat Sulit"
+
+# =========================
+# HABIT MATRIX - RULE DEFAULTS
+# =========================
+HABIT_SHIELD_MAX = 2
+HABIT_SHIELD_EXPIRE_HOURS = 4
+HABIT_REDEEM_EXPIRE_HOURS = 4
+HABIT_DAILY_BRIEF_TIME = os.getenv("HABIT_DAILY_BRIEF_TIME", "07:00")
+HABIT_NIGHT_ALERT_TIME = os.getenv("HABIT_NIGHT_ALERT_TIME", "21:00")
+
 INCOME_CATEGORIES = [
     ("💼", "Gaji"),
     ("🧑‍💻", "Freelance"),
