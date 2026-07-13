@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+import ssl
 import threading
 from collections.abc import Sequence
 from contextlib import contextmanager
@@ -65,10 +66,13 @@ class PgConfig:
         user = os.getenv("PG_USER", "").strip()
         password = os.getenv("PG_PASSWORD", "").strip()
         ssl_raw = os.getenv("PG_SSLMODE", "require").strip().lower()
+
         if ssl_raw in {"", "disable", "false", "0", "no"}:
-            ssl_mode: str | bool | None = None
+         ssl_mode = None
         else:
-            ssl_mode = True
+        ssl_mode = ssl.create_default_context()
+        ssl_mode.check_hostname = False
+        ssl_mode.verify_mode = ssl.CERT_NONE
         return cls(host=host, port=port, database=database, user=user, password=password, ssl=ssl_mode)
 
 
