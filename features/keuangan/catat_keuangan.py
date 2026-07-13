@@ -31,9 +31,9 @@ from features.keuangan.utils import (
     to_history_key, to_period_key, summarize_rows, build_insights, format_transaction_line, report_days,
     day_label,
 )
-from features.keuangan.charts import create_pie_chart, create_line_chart, create_bar_chart, create_area_chart
 from features.keuangan.catat_hutang import handle_hutang_text, reset_state as reset_hutang_state
 from features.ai.chat_ai import handle_ai_text
+from features.ai.voice_handler import handle_ai_voice
 from features.keuangan.target import handle_target_text
 def register(application: Application) -> None:
     seed_default_categories()
