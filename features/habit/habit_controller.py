@@ -126,8 +126,7 @@ from features.habit.habit_helpers import (
     _finish_add_flow,
     _finish_redeem_flow,
     _finish_settings_input,
-    _render_daily_query,
-    _render_list_query,
+
 )
 
 async def handle_habit_text(update: Update, context: ContextTypes.DEFAULT_TYPE, db_user: Dict[str, Any], text: str) -> bool:
