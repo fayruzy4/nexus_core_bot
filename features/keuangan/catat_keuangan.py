@@ -40,6 +40,12 @@ def register(application: Application) -> None:
     application.add_handler(CommandHandler(["start", "menu"], start))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    application.add_handler(
+    MessageHandler(
+        filters.VOICE | filters.AUDIO,
+        handle_ai_voice,
+    )
+    )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
