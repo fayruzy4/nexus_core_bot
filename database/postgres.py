@@ -172,18 +172,16 @@ async def _ainit_pool() -> None:
         raise PostgresError("PG_HOST/PG_USER/PG_PASSWORD belum diisi. Atau set DATABASE_URL.")
 
     _POOL = await asyncpg.create_pool(
-        host=cfg.host,
-        port=cfg.port,
-        database=cfg.database,
-        user=cfg.user,
-        password=cfg.password,
-        ssl=cfg.ssl,
-        min_size=cfg.min_size,
-        max_size=cfg.max_size,
-        statement_cache_size=cfg.statement_cache_size,
+    host=cfg.host,
+    port=cfg.port,
+    database=cfg.database,
+    user=cfg.user,
+    password=cfg.password,
+    ssl=cfg.ssl,
+    min_size=1,
+    max_size=1,
+    statement_cache_size=0,
     )
-
-
 async def _aclose_pool() -> None:
     global _POOL
     if _POOL is None:
