@@ -5,7 +5,7 @@ import string
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from database.supabase import get_supabase
+from database.postgres import get_postgres
 from features.habit.utils_habit import (
     ACHIEVEMENT_STREAKS,
     STREAK_CODE_MILESTONES,
