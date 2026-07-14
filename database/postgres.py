@@ -320,11 +320,12 @@ class _TableQuery:
         from datetime import date
 
         if isinstance(value, str):
-                try:
-                    value = date.fromisoformat(value)
-                except ValueError:
-                    pass
-            self._filters.append(_Condition("lte", column, value))
+            try:
+                value = date.fromisoformat(value)
+            except ValueError:
+                pass
+
+        self._filters.append(_Condition("lte", column, value))
         return self
 
     def order(self, column: str, desc: bool = False) -> "_TableQuery":
