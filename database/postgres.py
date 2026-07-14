@@ -317,7 +317,7 @@ class _TableQuery:
 
         if isinstance(value, str):
             try:
-            value = date.fromisoformat(value)
+                value = date.fromisoformat(value)
         except ValueError:
             pass
 
