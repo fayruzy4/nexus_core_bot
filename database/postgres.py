@@ -319,7 +319,7 @@ class _TableQuery:
     def lte(self, column: str, value: Any) -> "_TableQuery":
         from datetime import date
 
-            if isinstance(value, str):
+        if isinstance(value, str):
                 try:
                     value = date.fromisoformat(value)
                 except ValueError:
