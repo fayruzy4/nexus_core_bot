@@ -318,8 +318,8 @@ class _TableQuery:
         if isinstance(value, str):
             try:
                 value = date.fromisoformat(value)
-        except ValueError:
-            pass
+            except ValueError:
+                pass
 
         self._filters.append(_Condition("eq", column, value))
         return self
