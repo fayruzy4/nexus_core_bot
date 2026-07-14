@@ -313,9 +313,16 @@ class _TableQuery:
         return self
 
     def eq(self, column: str, value: Any) -> "_TableQuery":
+        from datetime import date
+
+        if isinstance(value, str):
+            try:
+            value = date.fromisoformat(value)
+        except ValueError:
+            pass
+
         self._filters.append(_Condition("eq", column, value))
         return self
-
     def lte(self, column: str, value: Any) -> "_TableQuery":
         from datetime import date
 
